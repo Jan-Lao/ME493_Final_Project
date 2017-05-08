@@ -41,6 +41,46 @@ void Agent::Reset(){
 	y_loc = y_loc_initial;
 }
 
+/////////////////////////////////////////////////////////////
+//GridWorld
+
+class GridWorld{
+public:
+    int xmapdim;
+    int ymapdim;
+    
+    int countervalue;
+    
+    void mapinit();
+    vector<int> xrowcounter; //x-values are pushed into this first. Then the rows are pushed in.
+    vector<vector<int>> gridcounter; //Made up of rows made up of xdim's.
+    
+    void gridcountereval(int x_loc, int y_loc);
+};
+
+void GridWorld::mapinit(){
+    xmapdim = 100;
+    ymapdim = 100;
+    
+    for(int j=0; j<ymapdim; j++){
+        for (int i=0; i<xmapdim; i++){
+            xrowcounter.push_back(0);
+        }
+        gridcounter.push_back(xrowcounter);
+    }
+}
+
+void GridWorld::gridcountereval(int x_loc, int y_loc){
+    //Set
+    countervalue = gridcounter.at(y_loc).at(x_loc); //grid->into rows->into cells
+    
+    //Change
+    countervalue += 1;
+    
+    //Update
+    gridcounter.at(y_loc).at(x_loc);
+}
+
 
 /////////////////////////////////////////////////////////////
 //Population
@@ -68,18 +108,21 @@ void Policy::init(){
 }
 
 
-
-
-
 int main(){
 	srand(time(NULL));
-
+	
+	GridWorld Map;
+    	Map.mapinit();
+	
 	Agent A;
 	A.init();
 	cout << A.x_loc << "\t" << A.y_loc << endl;
+	
 	Policy P;
 	P.init();
 
+	//Somewhere in the loop operation when the simulation makes the agent travel to a specific location...
+    	Map.gridcountereval(x_loc, y_loc); //Here: x_loc and y_loc refer to the
 
 	return 0;
 }
