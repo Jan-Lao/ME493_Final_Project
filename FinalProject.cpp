@@ -59,14 +59,17 @@ public:
 
 void Policy::init(){
 	for (int i = 0; i < 1000; i++){
-		int q = rand()%6;
-		Actions.push_back(q);
-		if(Actions.at(i) = 5){
-			break;
+		int options = rand()%10;
+		if (options > 6){
+			int q = rand()%5;
+			Actions.push_back(q);
+		}
+		else if (options <= 6){
+			int q = rand()%6;
+			Actions.push_back(q);
 		}
 	}
 }
-
 
 
 
@@ -79,7 +82,7 @@ int main(){
 	cout << A.x_loc << "\t" << A.y_loc << endl;
 	Policy P;
 	P.init();
-
+	
 
 	return 0;
 }
