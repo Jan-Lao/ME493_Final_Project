@@ -78,7 +78,7 @@ void GridWorld::gridcountereval(int x_loc, int y_loc){
     countervalue += 1;
     
     //Update
-    gridcounter.at(y_loc).at(x_loc);
+    gridcounter.at(y_loc).at(x_loc) = countervalue;
 }
 
 
