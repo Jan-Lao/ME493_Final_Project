@@ -133,7 +133,6 @@ int main(){
 		P.init();
 		Population.push_back(P);
 	}
-	cout << Population.at(80).Actions.at(150) << endl;
 
 
 	//Somewhere in the loop operation when the simulation makes the agent travel to a specific location...
