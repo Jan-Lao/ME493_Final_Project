@@ -115,9 +115,12 @@ void Policy::init(){
 
 
 
+
+
 int main(){
 	srand(time(NULL));
-	
+	int pop_size = 100;
+
 	GridWorld Map;
     	Map.mapinit();
 	
@@ -125,8 +128,12 @@ int main(){
 	A.init();
 	
 	Policy P;
-	P.init();
-	
+	vector<Policy> Population;
+	for (int i = 0; i < pop_size; i++){
+		P.init();
+		Population.push_back(P);
+	}
+	cout << Population.at(80).Actions.at(150) << endl;
 
 
 	//Somewhere in the loop operation when the simulation makes the agent travel to a specific location...
