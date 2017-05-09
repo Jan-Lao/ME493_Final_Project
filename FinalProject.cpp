@@ -236,12 +236,15 @@ vector<Policy> downselect(vector<vector<Policy> > nondominated_sets, int pop_siz
 	vector<Policy> newPop;
 	vector<Policy> Population;
 	Policy P;
-	while(newPop.size() < (pop_size/2)){
-			for (int i = 0; i < nondominated_sets.size(); i++){
-					if ((newPop.size() < nondominated_sets.at(i).size() + pop_size/2)){
+	//cout << newPop.size() << endl;
+	int i = 0;
+	while(newPop.size() != pop_size/2){
+			//for (int i = 0; i < nondominated_sets.size(); i++){
+			cout << newPop.size() << "\t";
+			cout << nondominated_sets.at(i).size()+pop_size/2 << endl;
+					if (newPop.size() <= nondominated_sets.at(i).size() + pop_size/2){
 						for (int j = 0; j < nondominated_sets.at(i).size(); j++){
-						cout << i << "\t" << nondominated_sets.at(i).at(j).domination_count << endl;
-						newPop.push_back(nondominated_sets.at(i).at(j));
+							newPop.push_back(nondominated_sets.at(i).at(j));
 						}
 					}
 					else if (newPop.size() > nondominated_sets.at(i).size() + pop_size/2){
@@ -252,7 +255,9 @@ vector<Policy> downselect(vector<vector<Policy> > nondominated_sets, int pop_siz
 						}
 						//cout << newPop.at(i).domination_count << endl;
 					}
-			}
+					//cout << i << "\t" << newPop.at(i).domination_count << "\t" << nondominated_sets.at(i).size() << endl;
+					i++;
+			//}
 		}
 		Population = newPop;
 		//assert(Population.size() == pop_size/2);
