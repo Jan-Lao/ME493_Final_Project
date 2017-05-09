@@ -130,7 +130,7 @@ public:
 	int Time;
 	double Exploration;
 	int domination_count;
-
+	double distance;
 
 	void init();
 	void downselect();
@@ -155,6 +155,7 @@ void Policy::init(){
 	Time = 0;
 	Exploration = 0;
 	domination_count = 0;
+	distance = 0;
 }
 
 vector<Policy> eval(vector<Policy> Population, int i ,vector<vector<int> > gridcounter, int ymapdim, int xmapdim){
@@ -201,20 +202,25 @@ struct less_than_key_exp{
 		}
 };
 
-/*vector<vector<Policy> > sort_by_time(vector<vector<Policy> > nondominated_sets, 	vector<vector<Policy> > nondominated_sets_Time){
-	vector<Policy> sortedFront;
+vector<vector<Policy> > calc_distance(vector<vector<Policy> > nondominated_sets){
 	for (int i = 0; i < nondominated_sets.size(); i++){
-			for (int j = 0; j < nondominated_sets.at(i).size(); j++){
-				for (int k = 0; k < nondominated_sets.at(i).size(); k++){
-					if(nondominated_sets.at(i).at(j).Time < nondominated_sets.at(i).at(k).Time){
-						sortedFront.push_back(nondominated_sets.at(i).at(j));
-					}
-					nondominated_sets_Time.push_back(sortedFront);
+		if (nondominated_sets.at(i).size() > 2){
+			sort(nondominated_sets.at(i).begin(), nondominated_sets.at(i).end(), less_than_key_time());
+			nondominated_sets.at(i).at(0).distance = 100000;
+			nondominated_sets.at(i).at((nondominated_sets.at(i).size())-1).distance = 100000;
+			for (int j = 1; j < (nondominated_sets.at(i).size())-1; j++){
+				nondominated_sets.at(i).at(j).distance = nondominated_sets.at(i).at(j).distance;// + (nondominated_sets.at(i).at(j+1).Time - nondominated_sets.at(i).at(j-1).Time)/(4999);
+			}
+			sort(nondominated_sets.at(i).begin(), nondominated_sets.at(i).end(), less_than_key_exp());
+			nondominated_sets.at(i).at(0).distance = 100000;
+			nondominated_sets.at(i).at((nondominated_sets.at(i).size())-1).distance = 100000;
+			for (int j = 1; j < nondominated_sets.at(i).size()-1; j++){
+				nondominated_sets.at(i).at(j).distance = nondominated_sets.at(i).at(j).distance + (nondominated_sets.at(i).at(j+1).Exploration - nondominated_sets.at(i).at(j-1).Exploration)/(3000);
 			}
 		}
 	}
-	return nondominated_sets_Time;
-}*/
+	return nondominated_sets;
+}
 
 int main(){
 	srand(time(NULL));
@@ -255,12 +261,9 @@ int main(){
 		assert(Population.size() == pop_size);
 		//Nondominated sorting
 		nondominated_sets = find_fronts(Population, nondominated_sets);
-		int type;
-		for (int i = 0; i < nondominated_sets.size(); i++){
-			sort(nondominated_sets.at(i).begin(), nondominated_sets.at(i).end(), less_than_key_time());
-		}
+		nondominated_sets = calc_distance(nondominated_sets);
 		/*for (int i = 0; i < nondominated_sets.size(); i++){
-			sort(nondominated_sets.at(i).begin(), nondominated_sets.at(i).end(), less_than_key_exp());
+
 		}*/
 
 		//Mutate
