@@ -129,7 +129,7 @@ public:
 	double Exploration;
 
 	void init();
-	void eval(vector<vector<int> > gridcounter);
+	//void eval(vector<Policy> Population, int i ,vector<vector<int> > gridcounter, int ymapdim, int xmapdim);
 	void downselect();
 	void mutate();
 
@@ -152,14 +152,23 @@ void Policy::init(){
 	Exploration = 0;
 }
 
+vector<Policy> eval(vector<Policy> Population, int i ,vector<vector<int> > gridcounter, int ymapdim, int xmapdim){
+	for (int h = 0; h < ymapdim; h++){
+		for (int y = 0; y < xmapdim; y++){
+			//Evaluating Exploration values for each policy i
+			Population.at(i).Exploration = Population.at(i).Exploration + (1-exp(-.9*gridcounter.at(h).at(y)));
+		}
+	}
+	return Population;
+}
+
 int main(){
 	srand(time(NULL));
 	int pop_size = 10;
-	int num_gen = 1;
+	int num_gen = 10;
 
 	Agent A;
 	A.init();
-
 	vector<Policy> Population;
 	for (int i = 0; i < pop_size; i++){
 		Policy P;
@@ -168,6 +177,8 @@ int main(){
 	}
 	for (int g = 0; g < num_gen; g++){
 		for (int i = 0; i < pop_size; i++){
+			Policy P;
+			//Population.at(i).Exploration = 0;
 			A.Reset();
 			GridWorld Map;
 			Map.mapinit();
@@ -183,12 +194,7 @@ int main(){
 					break;
 				}
 			}
-			for (int h = 0; h < Map.ymapdim; h++){
-				for (int y = 0; y < Map.xmapdim; y++){
-					//Evaluating Exploration values for each policy i
-					Population.at(i).Exploration = Population.at(i).Exploration + (1-exp(-.9*Map.gridcounter.at(h).at(y)));
-				}
-			}
+			Population = eval(Population, i, Map.gridcounter, Map.ymapdim, Map.xmapdim);
 			cout << Population.at(i).Exploration << "\t" << Population.at(i).Time << endl;
 		}
 		//Downselect
