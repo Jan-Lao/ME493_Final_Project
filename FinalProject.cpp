@@ -127,6 +127,8 @@ class Policy{
 public:
 	int Time;
 	double Exploration;
+	int domination_count;
+
 
 	void init();
 	//void eval(vector<Policy> Population, int i ,vector<vector<int> > gridcounter, int ymapdim, int xmapdim);
@@ -134,6 +136,7 @@ public:
 	void mutate();
 
 	vector<int> Actions;
+
 };
 
 void Policy::init(){
@@ -150,6 +153,7 @@ void Policy::init(){
 	}
 	Time = 0;
 	Exploration = 0;
+	domination_count = 0;
 }
 
 vector<Policy> eval(vector<Policy> Population, int i ,vector<vector<int> > gridcounter, int ymapdim, int xmapdim){
@@ -162,14 +166,38 @@ vector<Policy> eval(vector<Policy> Population, int i ,vector<vector<int> > gridc
 	return Population;
 }
 
+vector<vector<Policy> > sort_fronts(vector<Policy> Population,vector<vector<Policy> > nondominated_sets){
+	for (int z = 0 ; z < Population.size(); z++){
+		for (int j = 0; j < Population.size(); j++){
+			if((Population.at(z).Exploration > Population.at(j).Exploration)&&(Population.at(z).Time < Population.at(j).Time)){
+				Population.at(j).domination_count++;
+			}
+		}
+	}
+	for (int front_num = 0; front_num < Population.size(); front_num++){
+		vector<Policy> front;
+		for (int i = 0; i < Population.size(); i++){
+			if(Population.at(i).domination_count-front_num == 0){
+				Policy N;
+				N = Population.at(i);
+				front.push_back(N);
+			}
+		}
+		nondominated_sets.push_back(front);
+	}
+	return nondominated_sets;
+}
+
+
 int main(){
 	srand(time(NULL));
-	int pop_size = 10;
-	int num_gen = 10;
+	int pop_size = 100;
+	int num_gen = 1;
 
 	Agent A;
 	A.init();
 	vector<Policy> Population;
+	vector<vector<Policy> > nondominated_sets;
 	for (int i = 0; i < pop_size; i++){
 		Policy P;
 		P.init();
@@ -195,9 +223,10 @@ int main(){
 				}
 			}
 			Population = eval(Population, i, Map.gridcounter, Map.ymapdim, Map.xmapdim);
-			cout << Population.at(i).Exploration << "\t" << Population.at(i).Time << endl;
 		}
-		//Downselect
+		assert(Population.size() == pop_size);
+		//Nondominated sorting
+		nondominated_sets = sort_fronts(Population, nondominated_sets);
 
 		//Mutate
 	}
