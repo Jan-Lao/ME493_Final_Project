@@ -163,10 +163,11 @@ void Policy::init(){
 }
 
 vector<Policy> eval(vector<Policy> Population, int i ,vector<vector<int> > gridcounter, int ymapdim, int xmapdim){
+	double decay_rate = .9;
 	for (int h = 0; h < ymapdim; h++){
 		for (int y = 0; y < xmapdim; y++){
 			//Evaluating Exploration values for each policy i
-			Population.at(i).Exploration = Population.at(i).Exploration + (1-exp(-.9*gridcounter.at(h).at(y)));
+			Population.at(i).Exploration = Population.at(i).Exploration + (1-exp(-decay_rate*gridcounter.at(h).at(y)));
 		}
 	}
 	return Population;
@@ -236,31 +237,26 @@ vector<Policy> downselect(vector<vector<Policy> > nondominated_sets, int pop_siz
 	vector<Policy> newPop;
 	vector<Policy> Population;
 	Policy P;
-	//cout << newPop.size() << endl;
 	int i = 0;
 	while(newPop.size() < pop_size/2){
-			//for (int i = 0; i < nondominated_sets.size(); i++){
-			//cout << i << "\t" << newPop.size() << "\t";
-			//cout << nondominated_sets.at(i).size()+pop_size/2 << endl;
 					if (newPop.size() + nondominated_sets.at(i).size() <= pop_size/2){
 						for (int j = 0; j < nondominated_sets.at(i).size(); j++){
 							newPop.push_back(nondominated_sets.at(i).at(j));
 						}
 					}
-					else if (newPop.size() > nondominated_sets.at(i).size() + pop_size/2){
+					else if (newPop.size() + nondominated_sets.at(i).size() > pop_size/2){
 						for (int j = 0; j < nondominated_sets.at(i).size(); j++){
 							sort(nondominated_sets.at(i).begin(), nondominated_sets.at(i).end(), less_than_key_dist());
 							newPop.push_back(nondominated_sets.at(i).at(j));
+							if(newPop.size() > (pop_size/2)-1){
+								break;
+							}
 						}
-						//cout << newPop.at(i).domination_count << endl;
 					}
-					cout << i << "\t" << newPop.at(i).domination_count << "\t" << nondominated_sets.at(i).size() << endl;
 					i++;
-
-			//}
 		}
 		Population = newPop;
-		//assert(Population.size() == pop_size/2);
+		assert(Population.size() == pop_size/2);
 	return Population;
 }
 
@@ -298,20 +294,13 @@ int main(){
 			}
 			Population = eval(Population, i, Map.gridcounter, Map.ymapdim, Map.xmapdim);
 		}
-		//assert(Population.size() == pop_size);
+		assert(Population.size() == pop_size);
 
 		//Nondominated sorting and density preservation
 		nondominated_sets = find_fronts(Population, nondominated_sets);
 		nondominated_sets = calc_distance(nondominated_sets);
 
 		Population = downselect(nondominated_sets, pop_size);
-		cout << Population.size() << endl;
-		cout << nondominated_sets.at(0).size() << endl;
-		cout << nondominated_sets.at(1).size() << endl;
-		cout << nondominated_sets.at(2).size() << endl;
-		for (int i = 0; i < Population.size(); i++){
-			//cout << i << "\t" <<Population.at(i).domination_count << endl;
-		}
 
 		//Mutate
 	}
