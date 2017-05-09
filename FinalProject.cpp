@@ -12,6 +12,8 @@
 #include <time.h>
 #include <assert.h>
 #include <cmath>
+#include <algorithm>
+#include <string>
 
 using namespace std;
 
@@ -131,7 +133,6 @@ public:
 
 
 	void init();
-	//void eval(vector<Policy> Population, int i ,vector<vector<int> > gridcounter, int ymapdim, int xmapdim);
 	void downselect();
 	void mutate();
 
@@ -166,7 +167,7 @@ vector<Policy> eval(vector<Policy> Population, int i ,vector<vector<int> > gridc
 	return Population;
 }
 
-vector<vector<Policy> > sort_fronts(vector<Policy> Population,vector<vector<Policy> > nondominated_sets){
+vector<vector<Policy> > find_fronts(vector<Policy> Population,vector<vector<Policy> > nondominated_sets){
 	for (int z = 0 ; z < Population.size(); z++){
 		for (int j = 0; j < Population.size(); j++){
 			if((Population.at(z).Exploration > Population.at(j).Exploration)&&(Population.at(z).Time < Population.at(j).Time)){
@@ -188,6 +189,32 @@ vector<vector<Policy> > sort_fronts(vector<Policy> Population,vector<vector<Poli
 	return nondominated_sets;
 }
 
+struct less_than_key_time{
+	inline bool operator() (const Policy& a, const Policy& b){
+			return(a.Time < b.Time);
+		}
+};
+
+struct less_than_key_exp{
+	inline bool operator() (const Policy& a, const Policy& b){
+			return(a.Exploration < b.Exploration);
+		}
+};
+
+/*vector<vector<Policy> > sort_by_time(vector<vector<Policy> > nondominated_sets, 	vector<vector<Policy> > nondominated_sets_Time){
+	vector<Policy> sortedFront;
+	for (int i = 0; i < nondominated_sets.size(); i++){
+			for (int j = 0; j < nondominated_sets.at(i).size(); j++){
+				for (int k = 0; k < nondominated_sets.at(i).size(); k++){
+					if(nondominated_sets.at(i).at(j).Time < nondominated_sets.at(i).at(k).Time){
+						sortedFront.push_back(nondominated_sets.at(i).at(j));
+					}
+					nondominated_sets_Time.push_back(sortedFront);
+			}
+		}
+	}
+	return nondominated_sets_Time;
+}*/
 
 int main(){
 	srand(time(NULL));
@@ -198,6 +225,7 @@ int main(){
 	A.init();
 	vector<Policy> Population;
 	vector<vector<Policy> > nondominated_sets;
+	vector<vector<Policy> > nondominated_sets_Time;
 	for (int i = 0; i < pop_size; i++){
 		Policy P;
 		P.init();
@@ -226,7 +254,14 @@ int main(){
 		}
 		assert(Population.size() == pop_size);
 		//Nondominated sorting
-		nondominated_sets = sort_fronts(Population, nondominated_sets);
+		nondominated_sets = find_fronts(Population, nondominated_sets);
+		int type;
+		for (int i = 0; i < nondominated_sets.size(); i++){
+			sort(nondominated_sets.at(i).begin(), nondominated_sets.at(i).end(), less_than_key_time());
+		}
+		/*for (int i = 0; i < nondominated_sets.size(); i++){
+			sort(nondominated_sets.at(i).begin(), nondominated_sets.at(i).end(), less_than_key_exp());
+		}*/
 
 		//Mutate
 	}
