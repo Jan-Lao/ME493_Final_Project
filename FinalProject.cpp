@@ -238,25 +238,25 @@ vector<Policy> downselect(vector<vector<Policy> > nondominated_sets, int pop_siz
 	Policy P;
 	//cout << newPop.size() << endl;
 	int i = 0;
-	while(newPop.size() != pop_size/2){
+	while(newPop.size() < pop_size/2){
 			//for (int i = 0; i < nondominated_sets.size(); i++){
-			cout << newPop.size() << "\t";
-			cout << nondominated_sets.at(i).size()+pop_size/2 << endl;
-					if (newPop.size() <= nondominated_sets.at(i).size() + pop_size/2){
+			//cout << i << "\t" << newPop.size() << "\t";
+			//cout << nondominated_sets.at(i).size()+pop_size/2 << endl;
+					if (newPop.size() + nondominated_sets.at(i).size() <= pop_size/2){
 						for (int j = 0; j < nondominated_sets.at(i).size(); j++){
 							newPop.push_back(nondominated_sets.at(i).at(j));
 						}
 					}
 					else if (newPop.size() > nondominated_sets.at(i).size() + pop_size/2){
-						//cout << "get here?" << endl;
 						for (int j = 0; j < nondominated_sets.at(i).size(); j++){
 							sort(nondominated_sets.at(i).begin(), nondominated_sets.at(i).end(), less_than_key_dist());
 							newPop.push_back(nondominated_sets.at(i).at(j));
 						}
 						//cout << newPop.at(i).domination_count << endl;
 					}
-					//cout << i << "\t" << newPop.at(i).domination_count << "\t" << nondominated_sets.at(i).size() << endl;
+					cout << i << "\t" << newPop.at(i).domination_count << "\t" << nondominated_sets.at(i).size() << endl;
 					i++;
+
 			//}
 		}
 		Population = newPop;
