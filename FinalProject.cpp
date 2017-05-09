@@ -260,6 +260,31 @@ vector<Policy> downselect(vector<vector<Policy> > nondominated_sets, int pop_siz
 	return Population;
 }
 
+vector<Policy> Replicate(vector<Policy> Population, int pop_size){
+	vector<Policy> P;
+
+	while(Population.size() < pop_size){
+		int choose = rand()%Population.size();
+		P = Population.at(choose);
+		for (int i = 0; i < 5000; i++){
+			int b;
+			b = rand()%100;
+			if(b<5){
+				int options = rand()%100;
+				if (options < 99){
+					int q = rand()%5;
+					P.Actions.at(i) = q;
+				}
+				else if (options >= 99){
+					int q = rand()%6;
+					P.Actions.at(i) = q;
+				}
+			}
+		}
+	}
+	return Population;
+}
+
 int main(){
 	srand(time(NULL));
 	int pop_size = 100;
@@ -303,6 +328,7 @@ int main(){
 		Population = downselect(nondominated_sets, pop_size);
 
 		//Mutate
+		Population = Replicate(Population, pop_size);
 	}
 	return 0;
 }
