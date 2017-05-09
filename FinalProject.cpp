@@ -152,13 +152,6 @@ void Policy::init(){
 	Exploration = 0;
 }
 
-
-
-
-
-
-
-
 int main(){
 	srand(time(NULL));
 	int pop_size = 10;
@@ -182,7 +175,7 @@ int main(){
 				A.Action = Population.at(i).Actions.at(j);
 				A.GoHome = 0;
 				A.Simulate();
-				Population.at(i).Actions.at(j) = A.Action;
+				Population.at(i).Actions.at(j) = A.Action; //Replace old action with new action altered during simulaton
 				//Somewhere in the loop operation when the simulation makes the agent travel to a specific location...
 				Map.gridcountereval(A.x_loc, A.y_loc); //Here: x_loc and y_loc refer to the
 				Population.at(i).Time++;
@@ -192,6 +185,7 @@ int main(){
 			}
 			for (int h = 0; h < Map.ymapdim; h++){
 				for (int y = 0; y < Map.xmapdim; y++){
+					//Evaluating Exploration values for each policy i
 					Population.at(i).Exploration = Population.at(i).Exploration + (1-exp(-.9*Map.gridcounter.at(h).at(y)));
 				}
 			}
