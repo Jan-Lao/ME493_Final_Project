@@ -11,6 +11,7 @@
 #include <random>
 #include <time.h>
 #include <assert.h>
+#include <cmath>
 
 using namespace std;
 
@@ -49,19 +50,15 @@ void Agent::Reset(){
 void Agent::Simulate(){
 	while((Action == 0)&&(y_loc == y_max-1)){
 		Action++;
-		cout << Action << "\t" << "0" << endl;
 	}
 	while((Action == 1)&&(x_loc == x_max-1)){
 		Action++;
-		cout << Action << "\t" << "1" << endl;
 		}
 	while((Action == 2)&&(y_loc < 1 )){
 		Action++;
-		cout << Action << "\t" << "2" << endl;
 	}
 	while((Action == 3)&&(x_loc < 1)){
 		Action++;
-		cout << Action << "\t" << "3" << endl;
 	}
 	if(Action == 0){
 		y_loc++;
@@ -132,7 +129,7 @@ public:
 	double Exploration;
 
 	void init();
-	void eval();
+	void eval(vector<vector<int> > gridcounter);
 	void downselect();
 	void mutate();
 
@@ -140,23 +137,21 @@ public:
 };
 
 void Policy::init(){
-	for (int i = 0; i < 1000; i++){
-		int options = rand()%10;
-		if (options < 9){
+	for (int i = 0; i < 5000; i++){
+		int options = rand()%100;
+		if (options < 99){
 			int q = rand()%5;
 			Actions.push_back(q);
 		}
-		else if (options >= 9){
+		else if (options >= 99){
 			int q = rand()%6;
 			Actions.push_back(q);
 		}
 	}
+	Time = 0;
+	Exploration = 0;
 }
 
-void Policy::eval(){
-	Time++;
-	Exploration = Exploration + 1;
-}
 
 
 
@@ -166,47 +161,45 @@ void Policy::eval(){
 
 int main(){
 	srand(time(NULL));
-	int pop_size = 100;
-	int num_gen = 300;
-
-	int counter2 = 0;
-
-	GridWorld Map;
-    	Map.mapinit();
+	int pop_size = 10;
+	int num_gen = 1;
 
 	Agent A;
 	A.init();
-
-	Policy P;
 
 	vector<Policy> Population;
 	for (int i = 0; i < pop_size; i++){
 		Policy P;
 		P.init();
 		Population.push_back(P);
-		cout << Population.at(i).Actions.size() << endl;
 	}
 	for (int g = 0; g < num_gen; g++){
 		for (int i = 0; i < pop_size; i++){
-			int counter1 = 0;
-			cout << "get here?" << endl;
+			A.Reset();
+			GridWorld Map;
+			Map.mapinit();
 			for (int j = 0; j < Population.at(i).Actions.size(); j++){
 				A.Action = Population.at(i).Actions.at(j);
 				A.GoHome = 0;
 				A.Simulate();
-				//Population.at(i).Actions.at(j) = A.Action;
-				cout << A.x_loc << "\t" << A.y_loc << "\t" << A.Action << "\t" << counter1++ << "\t" << g << "\t" << i << endl;
+				Population.at(i).Actions.at(j) = A.Action;
 				//Somewhere in the loop operation when the simulation makes the agent travel to a specific location...
 				Map.gridcountereval(A.x_loc, A.y_loc); //Here: x_loc and y_loc refer to the
-				P.eval();
+				Population.at(i).Time++;
 				if(A.GoHome == 1){
 					break;
 				}
 			}
+			for (int h = 0; h < Map.ymapdim; h++){
+				for (int y = 0; y < Map.xmapdim; y++){
+					Population.at(i).Exploration = Population.at(i).Exploration + (1-exp(-.9*Map.gridcounter.at(h).at(y)));
+				}
+			}
+			cout << Population.at(i).Exploration << "\t" << Population.at(i).Time << endl;
 		}
+		//Downselect
+
+		//Mutate
 	}
-
-
-
 	return 0;
 }
