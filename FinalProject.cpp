@@ -261,7 +261,7 @@ vector<Policy> downselect(vector<vector<Policy> > nondominated_sets, int pop_siz
 }
 
 vector<Policy> Replicate(vector<Policy> Population, int pop_size){
-	vector<Policy> P;
+	Policy P;
 
 	while(Population.size() < pop_size){
 		int choose = rand()%Population.size();
@@ -281,6 +281,7 @@ vector<Policy> Replicate(vector<Policy> Population, int pop_size){
 				}
 			}
 		}
+		Population.push_back(P);
 	}
 	return Population;
 }
@@ -288,7 +289,7 @@ vector<Policy> Replicate(vector<Policy> Population, int pop_size){
 int main(){
 	srand(time(NULL));
 	int pop_size = 100;
-	int num_gen = 1;
+	int num_gen = 300;
 
 	Agent A;
 	A.init();
