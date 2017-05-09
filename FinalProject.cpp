@@ -125,6 +125,10 @@ void GridWorld::gridcountereval(int x_loc, int y_loc){
 
 /////////////////////////////////////////////////////////////
 //Population
+
+////NSGA-II info from:
+////https://www.iitk.ac.in/kangal/Deb_NSGA-II.pdf
+
 class Policy{
 public:
 	int Time;
@@ -202,6 +206,12 @@ struct less_than_key_exp{
 		}
 };
 
+struct less_than_key_dist{
+	inline bool operator() (const Policy& a, const Policy& b){
+			return(a.distance < b.distance);
+		}
+};
+
 vector<vector<Policy> > calc_distance(vector<vector<Policy> > nondominated_sets){
 	for (int i = 0; i < nondominated_sets.size(); i++){
 		if (nondominated_sets.at(i).size() > 2){
@@ -209,7 +219,7 @@ vector<vector<Policy> > calc_distance(vector<vector<Policy> > nondominated_sets)
 			nondominated_sets.at(i).at(0).distance = 100000;
 			nondominated_sets.at(i).at((nondominated_sets.at(i).size())-1).distance = 100000;
 			for (int j = 1; j < (nondominated_sets.at(i).size())-1; j++){
-				nondominated_sets.at(i).at(j).distance = nondominated_sets.at(i).at(j).distance;// + (nondominated_sets.at(i).at(j+1).Time - nondominated_sets.at(i).at(j-1).Time)/(4999);
+				nondominated_sets.at(i).at(j).distance = nondominated_sets.at(i).at(j).distance + (nondominated_sets.at(i).at(j+1).Time - nondominated_sets.at(i).at(j-1).Time)/(4999);
 			}
 			sort(nondominated_sets.at(i).begin(), nondominated_sets.at(i).end(), less_than_key_exp());
 			nondominated_sets.at(i).at(0).distance = 100000;
@@ -222,6 +232,33 @@ vector<vector<Policy> > calc_distance(vector<vector<Policy> > nondominated_sets)
 	return nondominated_sets;
 }
 
+vector<Policy> downselect(vector<vector<Policy> > nondominated_sets, int pop_size){
+	vector<Policy> newPop;
+	vector<Policy> Population;
+	Policy P;
+	while(newPop.size() < (pop_size/2)){
+			for (int i = 0; i < nondominated_sets.size(); i++){
+					if ((newPop.size() < nondominated_sets.at(i).size() + pop_size/2)){
+						for (int j = 0; j < nondominated_sets.at(i).size(); j++){
+						cout << i << "\t" << nondominated_sets.at(i).at(j).domination_count << endl;
+						newPop.push_back(nondominated_sets.at(i).at(j));
+						}
+					}
+					else if (newPop.size() > nondominated_sets.at(i).size() + pop_size/2){
+						//cout << "get here?" << endl;
+						for (int j = 0; j < nondominated_sets.at(i).size(); j++){
+							sort(nondominated_sets.at(i).begin(), nondominated_sets.at(i).end(), less_than_key_dist());
+							newPop.push_back(nondominated_sets.at(i).at(j));
+						}
+						//cout << newPop.at(i).domination_count << endl;
+					}
+			}
+		}
+		Population = newPop;
+		//assert(Population.size() == pop_size/2);
+	return Population;
+}
+
 int main(){
 	srand(time(NULL));
 	int pop_size = 100;
@@ -231,7 +268,6 @@ int main(){
 	A.init();
 	vector<Policy> Population;
 	vector<vector<Policy> > nondominated_sets;
-	vector<vector<Policy> > nondominated_sets_Time;
 	for (int i = 0; i < pop_size; i++){
 		Policy P;
 		P.init();
@@ -240,7 +276,6 @@ int main(){
 	for (int g = 0; g < num_gen; g++){
 		for (int i = 0; i < pop_size; i++){
 			Policy P;
-			//Population.at(i).Exploration = 0;
 			A.Reset();
 			GridWorld Map;
 			Map.mapinit();
@@ -258,13 +293,20 @@ int main(){
 			}
 			Population = eval(Population, i, Map.gridcounter, Map.ymapdim, Map.xmapdim);
 		}
-		assert(Population.size() == pop_size);
-		//Nondominated sorting
+		//assert(Population.size() == pop_size);
+
+		//Nondominated sorting and density preservation
 		nondominated_sets = find_fronts(Population, nondominated_sets);
 		nondominated_sets = calc_distance(nondominated_sets);
-		/*for (int i = 0; i < nondominated_sets.size(); i++){
 
-		}*/
+		Population = downselect(nondominated_sets, pop_size);
+		cout << Population.size() << endl;
+		cout << nondominated_sets.at(0).size() << endl;
+		cout << nondominated_sets.at(1).size() << endl;
+		cout << nondominated_sets.at(2).size() << endl;
+		for (int i = 0; i < Population.size(); i++){
+			//cout << i << "\t" <<Population.at(i).domination_count << endl;
+		}
 
 		//Mutate
 	}
