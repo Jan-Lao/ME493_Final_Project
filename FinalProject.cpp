@@ -14,6 +14,7 @@
 #include <cmath>
 #include <algorithm>
 #include <string>
+#include <fstream>
 
 using namespace std;
 
@@ -226,7 +227,7 @@ vector<vector<Policy> > calc_distance(vector<vector<Policy> > nondominated_sets)
 			nondominated_sets.at(i).at(0).distance = 100000;
 			nondominated_sets.at(i).at((nondominated_sets.at(i).size())-1).distance = 100000;
 			for (int j = 1; j < nondominated_sets.at(i).size()-1; j++){
-				nondominated_sets.at(i).at(j).distance = nondominated_sets.at(i).at(j).distance + (nondominated_sets.at(i).at(j+1).Exploration - nondominated_sets.at(i).at(j-1).Exploration)/(3000);
+				nondominated_sets.at(i).at(j).distance = nondominated_sets.at(i).at(j).distance + (nondominated_sets.at(i).at(j+1).Exploration - nondominated_sets.at(i).at(j-1).Exploration)/(1200);
 			}
 		}
 	}
@@ -288,13 +289,16 @@ vector<Policy> Replicate(vector<Policy> Population, int pop_size){
 
 int main(){
 	srand(time(NULL));
-	int pop_size = 100;
-	int num_gen = 300;
+	ofstream fout("FinalProject.csv" , fstream::trunc);
+	int pop_size = 50;
+	int num_gen = 30;
 
 	Agent A;
 	A.init();
 	vector<Policy> Population;
 	vector<vector<Policy> > nondominated_sets;
+	GridWorld Map;
+
 	for (int i = 0; i < pop_size; i++){
 		Policy P;
 		P.init();
@@ -302,9 +306,9 @@ int main(){
 	}
 	for (int g = 0; g < num_gen; g++){
 		for (int i = 0; i < pop_size; i++){
+			cout << "Population member # " << i << endl;
 			Policy P;
 			A.Reset();
-			GridWorld Map;
 			Map.mapinit();
 			for (int j = 0; j < Population.at(i).Actions.size(); j++){
 				A.Action = Population.at(i).Actions.at(j);
@@ -319,6 +323,13 @@ int main(){
 				}
 			}
 			Population = eval(Population, i, Map.gridcounter, Map.ymapdim, Map.xmapdim);
+			fout << g << "," <<Population.at(i).Exploration << "," << Population.at(i).Time << "\n";
+		}
+		for (int i = 0; i < Map.ymapdim; i++){
+			for (int j = 0; j < Map.xmapdim; j++){
+				fout << Map.gridcounter.at(i).at(j) << ",";
+			}
+			fout << "\n";
 		}
 		assert(Population.size() == pop_size);
 
@@ -330,6 +341,8 @@ int main(){
 
 		//Mutate
 		Population = Replicate(Population, pop_size);
+		cout << "Generation " << g << endl;
+
 	}
 	return 0;
 }
