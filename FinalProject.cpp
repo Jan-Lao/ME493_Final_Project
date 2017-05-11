@@ -164,7 +164,7 @@ void Policy::init(){
 }
 
 vector<Policy> eval(vector<Policy> Population, int i ,vector<vector<int> > gridcounter, int ymapdim, int xmapdim){
-	double decay_rate = .9;
+	double decay_rate = .1;
 	for (int h = 0; h < ymapdim; h++){
 		for (int y = 0; y < xmapdim; y++){
 			//Evaluating Exploration values for each policy i
@@ -272,13 +272,13 @@ vector<Policy> Replicate(vector<Policy> Population, int pop_size){
 		for (int i = 0; i < 5000; i++){
 			int b;
 			b = rand()%100;
-			if(b<5){
+			if(b<50){
 				int options = rand()%100;
-				if (options < 99){
+				if (options < 90){
 					int q = rand()%5;
 					P.Actions.at(i) = q;
 				}
-				else if (options >= 99){
+				else if (options >= 90){
 					int q = rand()%6;
 					P.Actions.at(i) = q;
 				}
@@ -295,7 +295,7 @@ int main(){
 	FinalProject_Population_Members.open("FinalProject_Population_Members.csv" , fstream::trunc);
 	ofstream FinalProject_Population_Grids;
 	FinalProject_Population_Grids.open("FinalProject_Population_Grids.csv" , fstream::trunc);
-	int pop_size = 100;
+	int pop_size = 1000;
 	int num_gen = 300;
 
 	Agent A;
