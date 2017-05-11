@@ -175,6 +175,7 @@ vector<Policy> eval(vector<Policy> Population, int i ,vector<vector<int> > gridc
 }
 
 vector<vector<Policy> > find_fronts(vector<Policy> Population,vector<vector<Policy> > nondominated_sets){
+	nondominated_sets.clear();
 	for (int z = 0 ; z < Population.size(); z++){
 		for (int j = 0; j < Population.size(); j++){
 			if((Population.at(z).Exploration > Population.at(j).Exploration)&&(Population.at(z).Time < Population.at(j).Time)){
@@ -341,16 +342,20 @@ int main(){
 
 		//Nondominated sorting and density preservation
 		nondominated_sets = find_fronts(Population, nondominated_sets);
-		for (int i = 0; i < Population.size(); i++){
-			FinalProject_Population_Members << g << "," <<Population.at(i).Exploration << "," << Population.at(i).Time << "," << Population.at(i).domination_count << "\n";
+		assert(nondominated_sets.size() == pop_size);
+		nondominated_sets = calc_distance(nondominated_sets);
+		assert(nondominated_sets.size() == pop_size);
+		for (int i = 0; i < nondominated_sets.size(); i++){
+			for (int f = 0; f < nondominated_sets.at(i).size(); f++){
+				FinalProject_Population_Members << g << "," <<nondominated_sets.at(i).at(f).Exploration << "," << nondominated_sets.at(i).at(f).Time << "," << nondominated_sets.at(i).at(f).domination_count << "\n";
+			}
 		}
 		FinalProject_Population_Members << "\n";
-		nondominated_sets = calc_distance(nondominated_sets);
-
 		Population = downselect(nondominated_sets, pop_size);
 
 		//Mutate
 		Population = Replicate(Population, pop_size);
+		assert(Population.size() == pop_size);
 	}
 	FinalProject_Population_Members.close();
 	FinalProject_Population_Grids.close();
