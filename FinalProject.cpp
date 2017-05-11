@@ -229,7 +229,7 @@ vector<vector<Policy> > calc_distance(vector<vector<Policy> > nondominated_sets)
 			nondominated_sets.at(i).at(0).distance = 100000;
 			nondominated_sets.at(i).at((nondominated_sets.at(i).size())-1).distance = 100000;
 			for (int j = 1; j < nondominated_sets.at(i).size()-1; j++){
-				nondominated_sets.at(i).at(j).distance = nondominated_sets.at(i).at(j).distance + (nondominated_sets.at(i).at(j+1).Exploration - nondominated_sets.at(i).at(j-1).Exploration)/(1000);
+				nondominated_sets.at(i).at(j).distance = nondominated_sets.at(i).at(j).distance + (nondominated_sets.at(i).at(j+1).Exploration - nondominated_sets.at(i).at(j-1).Exploration)/(400);
 			}
 		}
 	}
