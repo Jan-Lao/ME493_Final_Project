@@ -163,6 +163,15 @@ void Policy::init(){
 	distance = 0;
 }
 
+vector<Policy> Pop_Init(vector<Policy> Population, int pop_size){
+	for (int i = 0; i < pop_size; i++){
+		Policy P;
+		P.init();
+		Population.push_back(P);
+	}
+	return Population;
+}
+
 vector<Policy> eval(vector<Policy> Population, int i ,vector<vector<int> > gridcounter, int ymapdim, int xmapdim){
 	double decay_rate = .1;
 	for (int h = 0; h < ymapdim; h++){
@@ -302,11 +311,7 @@ int main(){
 	A.init();
 	vector<Policy> Population;
 	vector<vector<Policy> > nondominated_sets;
-	for (int i = 0; i < pop_size; i++){
-		Policy P;
-		P.init();
-		Population.push_back(P);
-	}
+	Population = Pop_Init(Population, pop_size);
 	for (int g = 0; g < num_gen; g++){
 		cout <<  endl;
 		for (int i = 0; i < pop_size; i++){
