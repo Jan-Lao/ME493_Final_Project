@@ -29,8 +29,8 @@ public:
 	int Action;
 	int GoHome;
 
-	int x_max = 100;
-	int y_max = 100;
+	int x_max = 20;
+	int y_max = 20;
 
 	void init();
 	void Simulate();
@@ -101,8 +101,8 @@ public:
 };
 
 void GridWorld::mapinit(){
-    xmapdim = 100;
-    ymapdim = 100;
+    xmapdim = 20;
+    ymapdim = 20;
 
     for(int j=0; j<ymapdim; j++){
         for (int i=0; i<xmapdim; i++){
@@ -196,6 +196,7 @@ vector<vector<Policy> > find_fronts(vector<Policy> Population,vector<vector<Poli
 	return nondominated_sets;
 }
 
+//Sorting is same as used by Dr. Yliniemi and implemented with no changes
 struct less_than_key_time{
 	inline bool operator() (const Policy& a, const Policy& b){
 			return(a.Time < b.Time);
@@ -227,7 +228,7 @@ vector<vector<Policy> > calc_distance(vector<vector<Policy> > nondominated_sets)
 			nondominated_sets.at(i).at(0).distance = 100000;
 			nondominated_sets.at(i).at((nondominated_sets.at(i).size())-1).distance = 100000;
 			for (int j = 1; j < nondominated_sets.at(i).size()-1; j++){
-				nondominated_sets.at(i).at(j).distance = nondominated_sets.at(i).at(j).distance + (nondominated_sets.at(i).at(j+1).Exploration - nondominated_sets.at(i).at(j-1).Exploration)/(3000);
+				nondominated_sets.at(i).at(j).distance = nondominated_sets.at(i).at(j).distance + (nondominated_sets.at(i).at(j+1).Exploration - nondominated_sets.at(i).at(j-1).Exploration)/(1000);
 			}
 		}
 	}
@@ -289,9 +290,12 @@ vector<Policy> Replicate(vector<Policy> Population, int pop_size){
 
 int main(){
 	srand(time(NULL));
-	ofstream fout("FinalProject.csv" , fstream::trunc);
+	ofstream FinalProject_Population_Members;
+	FinalProject_Population_Members.open("FinalProject_Population_Members.csv" , fstream::trunc);
+	ofstream FinalProject_Population_Grids;
+	FinalProject_Population_Grids.open("FinalProject_Population_Grids.csv" , fstream::trunc);
 	int pop_size = 100;
-	int num_gen = 30;
+	int num_gen = 300;
 
 	Agent A;
 	A.init();
@@ -303,9 +307,9 @@ int main(){
 		Population.push_back(P);
 	}
 	for (int g = 0; g < num_gen; g++){
-		cout << "Generation " << g << endl;
+		cout <<  endl;
 		for (int i = 0; i < pop_size; i++){
-			cout << "Population Member " << i << endl;
+			cout << "Generation " << g << "\t" << "Population Member " << i << endl;
 			Policy P;
 			A.Reset();
 			GridWorld Map;
@@ -323,20 +327,24 @@ int main(){
 				}
 			}
 			Population = eval(Population, i, Map.gridcounter, Map.ymapdim, Map.xmapdim);
+			FinalProject_Population_Grids << A.x_loc_initial << "," << A.y_loc_initial << "\n";
+			FinalProject_Population_Grids << g << "," << i << "\n";
 			for (int i = 0; i < Map.ymapdim; i++){
 				for (int j = 0; j < Map.xmapdim; j++){
-					fout << Map.gridcounter.at(i).at(j) << ",";
+					FinalProject_Population_Grids << Map.gridcounter.at(j).at(i) << ",";
 				}
-				fout << "\n";
+				FinalProject_Population_Grids << "\n";
 			}
-			fout << "\n";
-			fout << g << "," <<Population.at(i).Exploration << "," << Population.at(i).Time << "\n";
+			FinalProject_Population_Grids << "\n";
 		}
-		fout << "\n";
 		assert(Population.size() == pop_size);
 
 		//Nondominated sorting and density preservation
 		nondominated_sets = find_fronts(Population, nondominated_sets);
+		for (int i = 0; i < Population.size(); i++){
+			FinalProject_Population_Members << g << "," <<Population.at(i).Exploration << "," << Population.at(i).Time << "," << Population.at(i).domination_count << "\n";
+		}
+		FinalProject_Population_Members << "\n";
 		nondominated_sets = calc_distance(nondominated_sets);
 
 		Population = downselect(nondominated_sets, pop_size);
@@ -344,5 +352,7 @@ int main(){
 		//Mutate
 		Population = Replicate(Population, pop_size);
 	}
+	FinalProject_Population_Members.close();
+	FinalProject_Population_Grids.close();
 	return 0;
 }
