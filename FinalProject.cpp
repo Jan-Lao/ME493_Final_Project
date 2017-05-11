@@ -248,7 +248,7 @@ vector<Policy> downselect(vector<vector<Policy> > nondominated_sets, int pop_siz
 						}
 					}
 					else if (newPop.size() + nondominated_sets.at(i).size() > pop_size/2){
-						for (int j = 0; j < nondominated_sets.at(i).size(); j++){
+						for (int j = nondominated_sets.at(i).size()-1; j > 0; j--){
 							sort(nondominated_sets.at(i).begin(), nondominated_sets.at(i).end(), less_than_key_dist());
 							newPop.push_back(nondominated_sets.at(i).at(j));
 							if(newPop.size() > (pop_size/2)-1){
@@ -295,7 +295,7 @@ int main(){
 	FinalProject_Population_Members.open("FinalProject_Population_Members.csv" , fstream::trunc);
 	ofstream FinalProject_Population_Grids;
 	FinalProject_Population_Grids.open("FinalProject_Population_Grids.csv" , fstream::trunc);
-	int pop_size = 1000;
+	int pop_size = 100;
 	int num_gen = 300;
 
 	Agent A;
