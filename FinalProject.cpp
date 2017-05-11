@@ -265,10 +265,10 @@ vector<Policy> downselect(vector<vector<Policy> > nondominated_sets, int pop_siz
 
 vector<Policy> Replicate(vector<Policy> Population, int pop_size){
 	Policy P;
-
 	while(Population.size() < pop_size){
 		int choose = rand()%Population.size();
 		P = Population.at(choose);
+		assert(Population.at(choose).Time < 5000);
 		for (int i = 0; i < 5000; i++){
 			int b;
 			b = rand()%100;
@@ -312,6 +312,9 @@ int main(){
 		for (int i = 0; i < pop_size; i++){
 			cout << "Generation " << g << "\t" << "Population Member " << i << endl;
 			Policy P;
+			Population.at(i).Exploration = 0;
+			Population.at(i).Time = 0;
+			assert(Population.at(i).Time == 0);
 			A.Reset();
 			GridWorld Map;
 			Map.mapinit();
@@ -320,12 +323,13 @@ int main(){
 				A.GoHome = 0;
 				A.Simulate();
 				Population.at(i).Actions.at(j) = A.Action; //Replace old action with new action altered during simulaton
-				//Somewhere in the loop operation when the simulation makes the agent travel to a specific location...
-				Map.gridcountereval(A.x_loc, A.y_loc); //Here: x_loc and y_loc refer to the
-				Population.at(i).Time++;
 				if(A.GoHome == 1){
 					break;
 				}
+				//Somewhere in the loop operation when the simulation makes the agent travel to a specific location...
+				Map.gridcountereval(A.x_loc, A.y_loc); //Here: x_loc and y_loc refer to the
+				Population.at(i).Time++;
+				assert(Population.at(i).Time < 5000);
 			}
 			Population = eval(Population, i, Map.gridcounter, Map.ymapdim, Map.xmapdim);
 			FinalProject_Population_Grids << A.x_loc_initial << "," << A.y_loc_initial << "\n";
@@ -347,6 +351,7 @@ int main(){
 		assert(nondominated_sets.size() == pop_size);
 		for (int i = 0; i < nondominated_sets.size(); i++){
 			for (int f = 0; f < nondominated_sets.at(i).size(); f++){
+				//assert(nondominated_sets.at(i).at(f).Time <= 5000);
 				FinalProject_Population_Members << g << "," <<nondominated_sets.at(i).at(f).Exploration << "," << nondominated_sets.at(i).at(f).Time << "," << nondominated_sets.at(i).at(f).domination_count << "\n";
 			}
 		}
